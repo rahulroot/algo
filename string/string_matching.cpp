@@ -1,0 +1,119 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <string.h>
+
+using namespace std;
+
+/*
+ * string matching 
+ */
+
+bool naive_match(string &s, string &q)
+{
+	int slen = s.size();
+	int qlen = q.size();
+	bool found = false;
+	int i;
+	for(i = 0; i <= (slen-qlen); ++i)
+	{
+		found = true;
+		for(int j = 0; j < qlen; ++j)
+		{
+			if(q[j] != s[i+j])
+			{
+				found = false;
+				break;
+			}
+		}
+		if(found)
+			break;
+	}
+	cout <<"string match at : " << i  << endl;
+	return found;
+}
+
+int next[100] = {-1};
+
+void compute_next(string &p)
+{
+	int plen = p.size();
+	next[0] = 0; /* initially next[q] = 0, first character in pattern */
+	int k = 0; /* no of char matched so far */
+
+	int q = 1; 
+	while( q < plen )
+	{
+		while( k > 0 && p[k] != p[q] )
+		{
+			k = next[k-1];
+		}
+		if(p[k] == p[q])
+			k=k+1;
+		next[q] = k;
+		q++;
+	}
+}
+
+bool kmp_match(string &s, string &p)
+{
+	int slen = s.size();
+	int plen = p.size();
+	compute_next(p);
+
+	int q = 0, i = 0;	/* no of char matched so far */
+
+	bool found = false;
+	while(i < slen)
+	{
+		while(q > 0 && p[q] != s[i])
+		{
+			q = next[q-1]; /* if char doesn't match, shift by taking value from next array */
+		}
+		if(p[q] == s[i])
+			q = q+1; /* if matches, shift by 1 */
+
+		if(q == plen)
+		{
+			cout <<"Pattern occurs with shift : " << (i-plen+1) << endl;
+			found = true;
+			break;
+			//q = next[q];
+		}
+		i++;
+	}
+	return found;
+}
+
+int main()
+{
+	ifstream infile;
+	infile.open("./match.txt");
+	int test;
+	infile >> test;
+	infile.ignore();
+
+	while(test--)
+	{
+		string str;
+		getline(infile, str);
+		int q;
+		infile >> q;
+		infile.ignore();
+		cout <<"new string : "<< str << endl;
+		while(q--)
+		{
+			string que;
+			getline(infile, que);
+			cout <<"matching : " << que << endl;
+			if(kmp_match(str, que))
+				cout<<"y"<<endl;
+			else
+				cout<<"n"<<endl;
+			que.clear();
+			memset(&next, -1, sizeof(next));
+		}
+	}
+
+	return 0;
+}
