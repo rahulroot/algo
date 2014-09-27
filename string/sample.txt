@@ -1,5 +1,4 @@
 1
-abcdefghABCDEFGH
-2
-abc
-abAB
+ababaababababacaababaca
+1
+ababaca
